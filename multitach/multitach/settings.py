@@ -40,22 +40,22 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders', 
     'rest_framework',
-    'rest_framework.authtoken',
-    # 'worker',
+    #'rest_framework.authtoken',
     'user',
+    'task',
 ]
 
-# REST_FRAMEWORK = {
+REST_FRAMEWORK = {
     
-#     'DEFAULT_PERMISSION_CLASSES':[
-#         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-#     ],
+    # 'DEFAULT_PERMISSION_CLASSES':[
+    #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    # ],
     
-#     'DEFUALT_AUTHENTICATION_CLASSES':[
-#         'rest_framework.authentication.SessionAuthentication',
-#         'rest_framework_simplejwt.authentication.JWTAuthentication',       
-#     ]
-# }
+    # 'DEFUALT_AUTHENTICATION_CLASSES':[
+    #     'rest_framework.authentication.SessionAuthentication',
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',       
+    # ]
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
