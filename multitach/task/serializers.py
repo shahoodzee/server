@@ -18,14 +18,13 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
     def create(self, validated_data):
+        
         address_data = validated_data.pop('address')
         client_id = validated_data.pop('client')
         worker_id = validated_data.pop('worker')
 
         # Create or update related objects
-        address, _ = Address.objects.get_or_create(**address_data)
-        client, _ = Client.objects.get(id=client_id)
-        worker, _ = Worker.objects.get(id=worker_id)
+        address = Address.objects.get(**address_data)
 
-        task = Task.objects.create(address=address, client=client, worker=worker, **validated_data)
+        task = Task.objects.create(address=address, client=client_id, worker=worker_id, **validated_data)
         return task

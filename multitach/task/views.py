@@ -44,10 +44,6 @@ def post_a_task(request):
         rtask_address_long = request.data.get('longitude')
         rtask_address_lat = request.data.get('latitude')
         
-        client = Client.objects.filter(id = payload['id']).first()
-        worker = Worker.objects.filter(id = worker_id).first()  #no authentication for worker_id it will come authenticated from the front-end.
-
-
         task_data = {
             'client': client_id,
             'worker': worker_id,
