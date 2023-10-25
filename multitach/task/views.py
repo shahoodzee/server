@@ -21,7 +21,6 @@ class TaskViewSet(viewsets.ModelViewSet):
  
 @api_view(['POST'])
 def post_a_task(request):
-    
     if request.method == "POST":
         #Check if the user has logged-In
         token = request.COOKIES.get('jwt')
@@ -63,7 +62,96 @@ def post_a_task(request):
             task = serializer.save()
             return JsonResponse({"message": "Task created successfully", "task_id": task.id})
         else:
-            return JsonResponse({"message": "Task creation failed", "errors": serializer.errors})    
+            return JsonResponse({"message": "Task creation failed", "errors": serializer.errors})
         
         
-    
+        
+            
+@api_view(['DELETE'])
+def delete_a_task(request):
+    if request.method == "DELETE":
+        #Check if the user has logged-In
+        token = request.COOKIES.get('jwt')
+        if not token:
+            authentication = False
+            return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": authentication})
+        try:
+            payload = jwt.decode(token,'secret', algorithms=['HS256'] )
+        #if the sessionn time is over.
+        except jwt.ExpiredSignatureError:
+            return JsonResponse( {"message": "Session Expired" , "IsUserLoggedIn": authentication })
+          
+        """ Our data coming form the API """
+        client_id =  payload['id']
+        task_id = request.data.get('task_id')
+        
+        try:
+            # Try to get the task by its ID
+            task = Task.objects.get(pk=task_id)
+            
+        except Task.DoesNotExist:
+            isTask = False
+            return JsonResponse({"message":"Task_ID invalid", "isTaskFound": isTask})
+
+        """If the status of the task has been moved from the 'TaskPost' it cannot be deleted."""
+          
+        if task.status != 'TaskPosted':
+             return JsonResponse({"message": "You cannot avail this option now.","TaskStatus": task.status})
+        
+        #check if the     
+        if task.client.id != client_id:
+            return JsonResponse({"message": "You don't have permission to delete this task."}, status=403)
+
+        task.delete()
+        
+        return JsonResponse({"message": "Task Deleted Succesfully."})
+        
+        
+
+        
+
+@api_view(['PATCH'])
+def update_a_task(request):
+    if request.method == 'PATCH':
+        #Check if the user has logged-In
+        token = request.COOKIES.get('jwt')
+        if not token:
+            authentication = False
+            return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": authentication})
+        try:
+            payload = jwt.decode(token,'secret', algorithms=['HS256'] )
+        #if the sessionn time is over.
+        except jwt.ExpiredSignatureError:
+            return JsonResponse( {"message": "Session Expired" , "IsUserLoggedIn": authentication })
+          
+        """ Our data coming form the API """
+        client_id =  payload['id']
+        task_id = request.data.get('task_id')
+        
+        try:
+            # Try to get the task by its ID
+            task = Task.objects.get(pk=task_id)
+            
+        except Task.DoesNotExist:
+            isTask = False
+            return JsonResponse({"message":"Task_ID invalid", "isTaskFound": isTask})
+        """If the status of the task has been moved from the 'TaskPost' it cannot be Updated."""
+          
+        if task.status != 'TaskPosted':
+             return JsonResponse({"message": "You cannot avail this option now."})
+        
+        #check if the     
+        if task.client.id != client_id:
+            return JsonResponse({"message": "You don't have permission to delete this task."}, status=403)
+
+        """Enter the new values for the Fields"""
+        task.title = request.data.get('title')
+        task.description = request.data.get('description')
+        task.taskTyoe = request.data.get('type')        
+        task.time = request.data.get('time')
+        task.address.long = request.data.get('longitude')
+        task.address.lat = request.data.get('latitude')
+        
+        task.save()
+        
+        return JsonResponse()        
