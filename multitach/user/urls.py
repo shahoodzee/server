@@ -4,7 +4,7 @@
 from django.urls import include, path
 from rest_framework import routers
 from .api import WorkerViewSet,ClientViewSet
-from task.views import TaskViewSet, post_a_task,update_a_task,delete_a_task
+from task.views import TaskViewSet, post_a_task, update_a_task, delete_a_task, tasks_list
 from . import views
 
 router = routers.DefaultRouter()
@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/task/post_a_task/', post_a_task),
     path('api/task/update_a_task/',update_a_task),
     path('api/task/delete_a_task/',delete_a_task),
+    path('api/task/tasks_list/',tasks_list),
     
     
 ]

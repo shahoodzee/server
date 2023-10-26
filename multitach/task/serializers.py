@@ -11,6 +11,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    
     address = AddressSerializer()
 
     class Meta:
@@ -28,3 +29,13 @@ class TaskSerializer(serializers.ModelSerializer):
 
         task = Task.objects.create(address=address, client=client_id, worker=worker_id, **validated_data)
         return task
+    
+    
+    
+class TaskSerializer2(serializers.ModelSerializer):
+    
+    address = AddressSerializer()
+    
+    class Meta:
+        model = Task
+        fields = '__all__'

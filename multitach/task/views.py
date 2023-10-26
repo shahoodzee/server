@@ -1,5 +1,6 @@
+from urllib import response
 from user.serializers import ClientSerializer
-from .serializers import TaskSerializer
+from .serializers import TaskSerializer, TaskSerializer2
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
@@ -18,20 +19,33 @@ class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     
+    
+# class UserTasksViewSet(viewsets.ModelViewSet):
+#     serializer_class = TaskSerializer
+
+#     def get_queryset(self):
+#         # Get the client ID from the user's request (you may need to adjust this)
+#         client_id = self.request.user.id
+
+#         queryset = Task.objects.filter(client=client_id)
+
+#         return queryset
+    
  
 @api_view(['POST'])
 def post_a_task(request):
     if request.method == "POST":
         #Check if the user has logged-In
+        
         token = request.COOKIES.get('jwt')
+        
         if not token:
-            authentication = False
-            return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": authentication})
+            return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": False})
         try:
             payload = jwt.decode(token,'secret', algorithms=['HS256'] )
         #if the sessionn time is over.
         except jwt.ExpiredSignatureError:
-            return JsonResponse( {"message": "Session Expired" , "IsUserLoggedIn": authentication })
+            return JsonResponse( {"message": "Session Expired" , "IsUserLoggedIn": False })
           
         """ Our data coming form the API """
         client_id =  payload['id']
@@ -44,6 +58,7 @@ def post_a_task(request):
         rtask_address_lat = request.data.get('latitude')
         
         task_data = {
+
             'client': client_id,
             'worker': worker_id,
             'title': rtask_title,
@@ -60,11 +75,9 @@ def post_a_task(request):
 
         if serializer.is_valid():
             task = serializer.save()
-            return JsonResponse({"message": "Task created successfully", "task_id": task.id})
+            return JsonResponse({"message": "Task created successfully", "task_id": serializer.data})
         else:
-            return JsonResponse({"message": "Task creation failed", "errors": serializer.errors})
-        
-        
+            return JsonResponse({"message": "Task creation failed", "errors": serializer.errors, "task_id": serializer.data})
         
             
 @api_view(['DELETE'])
@@ -82,6 +95,7 @@ def delete_a_task(request):
             return JsonResponse( {"message": "Session Expired" , "IsUserLoggedIn": authentication })
           
         """ Our data coming form the API """
+        
         client_id =  payload['id']
         task_id = request.data.get('task_id')
         
@@ -105,9 +119,6 @@ def delete_a_task(request):
         task.delete()
         
         return JsonResponse({"message": "Task Deleted Succesfully."})
-        
-        
-
         
 
 @api_view(['PATCH'])
@@ -145,13 +156,34 @@ def update_a_task(request):
             return JsonResponse({"message": "You don't have permission to delete this task."}, status=403)
 
         """Enter the new values for the Fields"""
-        task.title = request.data.get('title')
-        task.description = request.data.get('description')
-        task.taskTyoe = request.data.get('type')        
         task.time = request.data.get('time')
         task.address.long = request.data.get('longitude')
         task.address.lat = request.data.get('latitude')
         
         task.save()
         
-        return JsonResponse()        
+        stask = TaskSerializer(task)
+        return JsonResponse({"meesage": "task updated!" , "updated fields": stask.data})        
+    
+    
+@api_view(['GET'])
+def tasks_list(request):
+    if request.method == 'GET':
+        
+        # Check if the user has logged-In
+        token = request.COOKIES.get('jwt')
+        if not token:
+            authentication = False
+            return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": authentication})
+        try:
+            payload = jwt.decode(token,'secret', algorithms=['HS256'] )
+        #if the sessionn time is over.
+        except jwt.ExpiredSignatureError:
+            return JsonResponse( {"message": "Session Expired" , "IsUserLoggedIn": authentication })
+          
+        """ Our data coming form the API """
+        client_id =  payload['id']
+        task = Task.objects.filter(client = client_id)
+        stask = TaskSerializer(task,many=True)
+        
+        return JsonResponse({"message": "List of Tasks posted by this client.", "tasks": stask.data })            
