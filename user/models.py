@@ -21,7 +21,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     image_url = models.URLField(null=True)
     date_of_birth = models.DateField(null=True)
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, null=True) 
-    phone = models.BigIntegerField(null=True)
+    phone = models.CharField(max_length=11, null=True)
 
     objects = CustomUserManager()
 
@@ -49,8 +49,10 @@ class Worker(models.Model):
     workerLocation = models.CharField(max_length=30)
     workerType = models.CharField(max_length=20, choices=WORKER_CHOICES, null=True)
     base_rating = models.IntegerField(default=1300, null=True)
+    task_count = models.IntegerField(null=True)
     
     
 class Client(models.Model):
     
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    cnic = models.BigIntegerField(null=True)

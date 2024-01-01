@@ -10,24 +10,44 @@ class Address(models.Model):
         return f"Lat: {self.lat}, Long: {self.long}"
 
 
-# # Create your models here.
-# class Task(models.Model):
+# Create your models here.
+class Task(models.Model):
     
-#     STATUS_CHOICES = [
-#         ('TaskPost', 'TaskPosted'),
-#         ('TaskAccept', 'TaskAccepted'),
-#         ('TaskProcessing', 'TaskProcessing'),
-#         ('TaskDeclined', 'TaskDeclined'),
-#         ('TaskCompleted', 'TaskCompleted'),
-#     ]
+    STATUS_CHOICES = [
+        ('TaskPost', 'TaskPosted'),
+        ('TaskAccept', 'TaskAccepted'),
+        ('TaskProcessing', 'TaskProcessing'),
+        ('TaskDeclined', 'TaskDeclined'),
+        ('TaskCompleted', 'TaskCompleted'),
+    ]
     
-#     client = models.OneToOneField(Client, on_delete=models.CASCADE)
-#     worker = models.OneToOneField(Worker, on_delete=models.CASCADE)
+    WORKER_CHOICES = [
+        ('Electrician', 'Electrician'),
+        ('Plumber', 'Plumber'),
+        ('Carpenter', 'Carpenter'),
+        ('Goldsmith', 'Goldsmith'),
+        ('Blacksmith', 'Blacksmith'),
+        ('Other', 'Other'),
+    ]
     
-#     title = models.CharField(max_length = 15)
-#     description = models.CharField(max_length = 300)
-#     time = models.TimeField()
+    worker = models.ForeignKey(Worker, on_delete=models.CASCADE)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
     
-#     address = models.OneToOneField(Address, on_delete = models.CASCADE)  # One-to-one relationship with Address model
-#     status =  models.CharField(max_length=20, choices = STATUS_CHOICES, default='TaskPosted')
+    title = models.CharField(max_length = 15)
+    description = models.CharField(max_length = 300)
+    time = models.TimeField()
     
+    taskType = models.CharField(max_length=20, choices=WORKER_CHOICES, null=True)
+    
+    # One-to-one relationship with Address model
+    address = models.OneToOneField(Address, on_delete = models.CASCADE)  
+    status =  models.CharField(max_length=20, choices = STATUS_CHOICES, default='TaskPosted')
+    
+    worker_response = models.CharField(max_length=10, choices=[('Pending', 'Pending'), ('Accepted', 'Accepted'), ('Rejected', 'Rejected')], default='Pending')
+
+    
+    
+    
+    
+
+

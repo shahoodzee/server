@@ -40,8 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders', 
     'rest_framework',
+    'channels',
     #'rest_framework.authtoken',
     'user',
+    'task',
+    'feedback',
+    'notifications',
 ]
 
 REST_FRAMEWORK = {
@@ -92,6 +96,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'multitach.wsgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
+
 
 
 # Database
