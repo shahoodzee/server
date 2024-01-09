@@ -22,7 +22,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_of_birth = models.DateField(null=True)
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, null=True) 
     phone = models.CharField(max_length=11, null=True)
-    cnic = models.BigIntegerField(max_length=11, null=True)
+    cnic = models.BigIntegerField(null=True)
     
 
     objects = CustomUserManager()

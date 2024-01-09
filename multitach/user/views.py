@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from .serializers import ClientSerializer,WorkerSerializer
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
     
 from django.http import JsonResponse
 from user.models import CustomUser, Client, Worker
@@ -9,6 +9,7 @@ import jwt
 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 
 
 
@@ -49,10 +50,12 @@ def Login(request):
 
             
 api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def clientprofile(request):
     if request.method == 'GET':
-        token = request.COOKIES.get('jwt')
-    
+        #token = request.COOKIES.get('jwt')
+        token = request.data.get('jwt')
+        # token = request.auth
         if not token:
             return JsonResponse( {"message":"Un authenticated"} )
         try:

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders', 
     'rest_framework',
+    'rest_framework_simplejwt',
     'channels',
     #'rest_framework.authtoken',
     'user',
@@ -56,17 +57,26 @@ INSTALLED_APPS = [
     'feedback',
     'notifications',
 ]
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# REST_FRAMEWORK = {
+    
+#     'DEFAULT_PERMISSION_CLASSES':[
+#         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+#     ],
+    
+#     'DEFUALT_AUTHENTICATION_CLASSES':[
+#         'rest_framework.authentication.SessionAuthentication',
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',       
+#     ]
+# }
 
 REST_FRAMEWORK = {
-    
-    # 'DEFAULT_PERMISSION_CLASSES':[
-    #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    # ],
-    
-    # 'DEFUALT_AUTHENTICATION_CLASSES':[
-    #     'rest_framework.authentication.SessionAuthentication',
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',       
-    # ]
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }
 
 MIDDLEWARE = [
@@ -82,9 +92,13 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_ALLOW_ALL = False
+
 CORS_ORIGIN_WHITELIST = (
   'http://localhost:3000',
 )
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Adjust based on your frontend URL
+]
 
 ROOT_URLCONF = 'multitach.urls'
 
@@ -128,6 +142,13 @@ DATABASES = {
     }
 }
 
+# Ensure that the SameSite attribute for your cookie is set appropriately. 
+# You can set it to "None" if your site is served over HTTPS. 
+
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SAMESITE = None
+# SESSION_COOKIE_SAMESITE = None
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -163,6 +184,8 @@ USE_TZ = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_CREDENTIALS = True
+Access_Control_Allow_Credentials= True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
