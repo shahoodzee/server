@@ -16,12 +16,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_client = models.BooleanField(default=False)
 
     #field asked by user
-    username = None    
+    username = models.CharField(max_length=20, null=True)    
     email = models.EmailField(unique=True)
     image_url = models.URLField(null=True)
     date_of_birth = models.DateField(null=True)
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, null=True) 
-    phone = models.BigIntegerField(null=True)
+    phone = models.CharField(max_length=11, null=True)
+    cnic = models.BigIntegerField(max_length=11, null=True)
+    
 
     objects = CustomUserManager()
 
@@ -45,10 +47,10 @@ class Worker(models.Model):
         ('Other', 'Other'),
     ]
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    cnic = models.BigIntegerField(null=True)
     workerLocation = models.CharField(max_length=30)
-    workerType = models.CharField(max_length=20, choices=WORKER_CHOICES, null=True)
-    base_rating = models.IntegerField(default=1300, null=True)
+    workerType = models.CharField(max_length=20, choices=WORKER_CHOICES)
+    base_rating = models.IntegerField(default=1300)
+    task_count = models.IntegerField(default =0)
     
     
 class Client(models.Model):

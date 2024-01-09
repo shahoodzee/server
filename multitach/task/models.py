@@ -38,9 +38,14 @@ class Task(models.Model):
     time = models.TimeField()
     
     taskType = models.CharField(max_length=20, choices=WORKER_CHOICES, null=True)
+    
     # One-to-one relationship with Address model
     address = models.OneToOneField(Address, on_delete = models.CASCADE)  
+    text_address = models.CharField(max_length=20, null=True)
     status =  models.CharField(max_length=20, choices = STATUS_CHOICES, default='TaskPosted')
+    
+    worker_response = models.CharField(max_length=10, choices=[('Pending', 'Pending'), ('Accepted', 'Accepted'), ('Rejected', 'Rejected')], default='Pending')
+
     
     
     

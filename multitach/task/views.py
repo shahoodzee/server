@@ -4,6 +4,7 @@ from .serializers import TaskSerializer, TaskSerializer2
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
+
     
 from django.http import JsonResponse
 from user.models import CustomUser, Client, Worker
@@ -14,26 +15,141 @@ from rest_framework.decorators import api_view
 
 from task.models import Task
 
+
+import joblib
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+import os
+
+from django.http import JsonResponse
+
+# Get the absolute path to the task_classifier.pkl file
+#model_path = os.path.abspath("AI-models/TaskPrediction/task_predictor.pkl")
+model_path = os.path.join(os.path.dirname(__file__), 'task_predictor.pkl')
+vectorizer_path = os.path.join(os.path.dirname(__file__), 'tfidf_vectorizer.pkl')
+
+
 # Create your views here.
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     
+
+
+@api_view(['GET'])
+def recommended_workers(request):
+
+    if request.method == "GET":
+        # Check if the user has logged-In        
+        token = request.COOKIES.get('jwt')
+        
+        if not token:
+            return JsonResponse({"message": "You are not logged-In", "IsUserLoggedIn": False})
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        # if the session time is over.
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({"message": "Session Expired", "IsUserLoggedIn": False})
+
+        """ Our data coming form the API """
+
+        rclient_id = payload['id']
+        rworker_id = None
+        rtask_title = request.data.get('title')
+        rtask_description = request.data.get('description')
+
+        # Load the pre-trained model and vectorizer
+        classifier = joblib.load(model_path)
+        vectorizer = joblib.load(vectorizer_path)
+
+        if classifier is None:
+            return JsonResponse({"message": "The classifier is absent"})
+
+        if vectorizer is None:
+            return JsonResponse({"message": "The vectorizer is absent"})
+
+        # Use the text classification model to predict taskType
+        text_tfidf = vectorizer.transform([rtask_description])
+        rtask_type = classifier.predict(text_tfidf)[0]
+
+        # Query workers with matching workerType and get the top three with the highest score
+        workers_list = Worker.objects.filter(workerType=rtask_type).order_by('-base_rating')[:3]
+
+        if workers_list.exists():
+            # Extract information about the top three workers
+            top_workers_info = [{
+                                "worker_id": worker.id,
+                                "userame": worker.user.username,
+                                "user_id":worker.user.id,
+                                "base_rating": worker.base_rating,
+                                "Gigs Completed:":worker.task_count,
+                                "Phone Number":worker.user.phone
+                                }
+                                for worker in workers_list]
+            
+            return JsonResponse({
+                                "message": "Your request has been processed these are the results based on your title and description",
+                                "task_type":rtask_type,
+                                "task title":rtask_title,
+                                "task description":rtask_description,
+                                "client_id": rclient_id,
+                                "worker_id": rworker_id,
+                                "top_workers for the given task type": top_workers_info})
+        else:
+            return JsonResponse({"message": "No matching worker found for the given task type"})
+
+
+
+    # if request.method == "GET":
+        #Check if the user has logged-In
+        
+        token = request.COOKIES.get('jwt')
+        
+        if not token:
+            return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": False})
+        try:
+            payload = jwt.decode(token,'secret', algorithms=['HS256'] )
+        #if the sessionn time is over.
+        except jwt.ExpiredSignatureError:
+            return JsonResponse( {"message": "Session Expired" , "IsUserLoggedIn": False })
+          
+        """ Our data coming form the API """
+        
+        rclient_id =  payload['id']
+        rworker_id = None
+        rtask_title = request.data.get('title')
+        rtask_description = request.data.get('description')
+        
+        # Load the pre-trained model and vectorizer
+        classifier = joblib.load(model_path)
+        vectorizer = joblib.load(vectorizer_path)
+        
+        if classifier is None:
+            return JsonResponse({"message": "The classifier is absent"})
+        
+        if vectorizer is None:
+            return JsonResponse({"message": "The vectorizer is absent"})    
+        
+        # Use the text classification model to predict taskType
+        text_tfidf = vectorizer.transform([rtask_description])
+        rtask_type = classifier.predict(text_tfidf)[0]
+        
+        # Query workers with matching workerType and get the one with the highest score
+        workers_list = Worker.objects.filter(workerType=rtask_type).order_by('base_rating')
+        
+        if workers_list.exists():
+            selected_worker = workers_list.first()
+            rworker_id = selected_worker.id
+
+        else:
+            return JsonResponse({"message": "No matching worker found for the given task type"})
     
-# class UserTasksViewSet(viewsets.ModelViewSet):
-#     serializer_class = TaskSerializer
-
-#     def get_queryset(self):
-#         # Get the client ID from the user's request (you may need to adjust this)
-#         client_id = self.request.user.id
-
-#         queryset = Task.objects.filter(client=client_id)
-
-#         return queryset
+    return JsonResponse()    
     
- 
+# only a client can post a task. 
 @api_view(['POST'])
 def post_a_task(request):
+    
     if request.method == "POST":
         #Check if the user has logged-In
         
@@ -48,19 +164,42 @@ def post_a_task(request):
             return JsonResponse( {"message": "Session Expired" , "IsUserLoggedIn": False })
           
         """ Our data coming form the API """
-        client_id =  payload['id']
-        worker_id = request.data.get('worker_id')
+        
+        rclient_id =  payload['id']
+        rworker_id = None
         rtask_title = request.data.get('title')
         rtask_description = request.data.get('description')
-        rtask_type = request.data.get('type')        
         rtask_time = request.data.get('time')
         rtask_address_long = request.data.get('longitude')
         rtask_address_lat = request.data.get('latitude')
         
-        task_data = {
+        # Load the pre-trained model and vectorizer
+        classifier = joblib.load(model_path)
+        vectorizer = joblib.load(vectorizer_path)
+        
+        if classifier is None:
+            return JsonResponse({"message": "The classifier is absent"})
+        
+        if vectorizer is None:
+            return JsonResponse({"message": "The vectorizer is absent"})    
+        
+        # Use the text classification model to predict taskType
+        text_tfidf = vectorizer.transform([rtask_description])
+        rtask_type = classifier.predict(text_tfidf)[0]
+        
+        # Query workers with matching workerType and get the one with the highest score
+        workers_list = Worker.objects.filter(workerType=rtask_type).order_by('base_rating')
+        
+        if workers_list.exists():
+            selected_worker = workers_list.first()
+            rworker_id = selected_worker.id
 
-            'client': client_id,
-            'worker': worker_id,
+        else:
+            return JsonResponse({"message": "No matching worker found for the given task type"})
+        
+        task_data = {
+            'client': rclient_id,
+            'worker': rworker_id,
             'title': rtask_title,
             'description': rtask_description,
             'taskType': rtask_type,
@@ -70,14 +209,14 @@ def post_a_task(request):
                 'long': rtask_address_long
             }
         }
-
+        # return JsonResponse({"task": task_data})
         serializer = TaskSerializer(data=task_data)
 
         if serializer.is_valid():
             task = serializer.save()
             return JsonResponse({"message": "Task created successfully", "task_id": serializer.data})
         else:
-            return JsonResponse({"message": "Task creation failed", "errors": serializer.errors, "task_id": serializer.data})
+            return JsonResponse({"message": "Task creation failed", "errors": serializer.errors, "Task Details": serializer.data})
         
             
 @api_view(['DELETE'])

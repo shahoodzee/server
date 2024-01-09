@@ -12,6 +12,15 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api	
+
+cloudinary.config(
+  cloud_name = "dit8cpqce", 
+  api_key = "214691261127513", 
+  api_secret = "Ci78JK5MJ5tuSuM1w987WRiXluM" 
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,9 +49,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders', 
     'rest_framework',
+    'channels',
     #'rest_framework.authtoken',
     'user',
     'task',
+    'feedback',
+    'notifications',
 ]
 
 REST_FRAMEWORK = {
@@ -93,6 +105,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'multitach.wsgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
+
 
 
 # Database

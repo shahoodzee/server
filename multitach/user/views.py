@@ -131,9 +131,86 @@ def Logout(request):
         return response
 
 
+@api_view(['PUT'])
+def update_client(request):
+    if request.method == 'PUT':
+        token = request.COOKIES.get('jwt')
+    
+        if not token:
+            return JsonResponse( {"message":"Un authenticated"} )
+        try:
+            payload = jwt.decode(token,'secret', algorithms=['HS256'] )
+        
+        except jwt.ExpiredSignatureError:
+            return JsonResponse( {"message":"Unauthenticated Session Expired"} )
+            
+        try:
+            client = Client.objects.filter(id = payload['id']).first()
+            
+        except Client.DoesNotExist:
+            return JsonResponse({"detail": "Worker not found"})
+
+        # Extract only the fields you want to update from the request data
+        update_data = {
+            'user': {
+                'image_url': request.data.get('user', {}).get('image_url'),
+                'date_of_birth': request.data.get('user', {}).get('date_of_birth'),
+                'gender': request.data.get('user', {}).get('gender'),
+                'phone': request.data.get('user', {}).get('phone'),
+            }
+        }
+
+        serializer = ClientSerializer(instance=client, data=update_data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+
+        return JsonResponse(serializer.errors, status=400)
+
+    
+@api_view(['PUT'])
+def update_worker(request):
+    if request.method == 'PUT':
+        token = request.COOKIES.get('jwt')
+    
+        if not token:
+            return JsonResponse( {"message":"Un authenticated"} )
+        try:
+            payload = jwt.decode(token,'secret', algorithms=['HS256'] )
+        
+        except jwt.ExpiredSignatureError:
+            return JsonResponse( {"message":"Unauthenticated Session Expired"} )
+            
+        try:
+            worker = Worker.objects.filter(id = payload['id']).first()
+            
+        except Worker.DoesNotExist:
+            return JsonResponse({"detail": "Worker not found"})
+
+        # Extract only the fields you want to update from the request data
+        update_data = {
+            'user': {
+                'username': request.data.get('user', {}).get('username'),
+                'image_url': request.data.get('user', {}).get('image_url'),
+                'date_of_birth': request.data.get('user', {}).get('date_of_birth'),
+                'gender': request.data.get('user', {}).get('gender'),
+                'phone': request.data.get('user', {}).get('phone'),
+            },
+            'workerLocation': request.data.get('workerLocation'),
+            'workerType': request.data.get('workerType'),
+        }
+
+        serializer = WorkerSerializer(instance=worker, data=update_data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+
+        return JsonResponse(serializer.errors, status=400)
+    
 @api_view(['GET'])
 def unique_worker_types(request):
-    
     if request.method == 'GET':
         # Use distinct to get unique worker types from the database
         unique_types = Worker.objects.values_list('workerType', flat=True).distinct()
