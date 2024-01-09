@@ -23,7 +23,7 @@ def create_task_notification(request):
 
     if request.method == 'POST':
         # Check if the user has logged-In        
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         if not token:
             return JsonResponse({"message": "You are not logged-In", "IsUserLoggedIn": False})
@@ -73,7 +73,7 @@ def create_task_notification(request):
 def WorkerNotificationList(request):
     if request.method == "GET":
         # Check if the user has logged-In        
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         if not token:
             return JsonResponse({"message": "You are not logged-In", "IsUserLoggedIn": False})
@@ -96,7 +96,7 @@ def WorkerNotificationList(request):
 def WorkerSeenTask(request):
     if request.method == "POST":
         # Check if the user has logged-In        
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         notification_id =  request.data.get('notification_id')
         
@@ -121,7 +121,7 @@ def WorkerSeenTask(request):
             return JsonResponse({"message": "Session Expired", "IsUserLoggedIn": False})
     if request.method == "POST":
         # Check if the user has logged-In        
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         notfication_id =  request.data.get('notification_id')
         
@@ -140,7 +140,7 @@ def WorkerSeenTask(request):
 def ClientNotificationList(request):
     if request.method == "GET":
         # Check if the user has logged-In        
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         if not token:
             return JsonResponse({"message": "You are not logged-In", "IsUserLoggedIn": False})
@@ -154,7 +154,7 @@ def ClientNotificationList(request):
 def WorkerAcceptTask(request):
     if request.method == "PUT":
         # Check if the user has logged-In        
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         if not token:
             return JsonResponse({"message": "You are not logged-In", "IsUserLoggedIn": False})
@@ -194,7 +194,7 @@ def WorkerAcceptTask(request):
 def WorkerRejectTask(request):
     if request.method == "PUT":
         # Check if the user has logged-In        
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         if not token:
             return JsonResponse({"message": "You are not logged-In",  "IsUserLoggedIn": False})
