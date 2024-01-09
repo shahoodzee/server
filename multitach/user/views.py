@@ -48,14 +48,13 @@ def Login(request):
         response.set_cookie(key='jwt', value=token, httponly=True)
         return response
 
+
             
 api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def clientprofile(request):
     if request.method == 'GET':
-        #token = request.COOKIES.get('jwt')
-        token = request.data.get('jwt')
-        # token = request.auth
+        # token = request.COOKIES.get('jwt')
+        token = request.GET.get('token')
         if not token:
             return JsonResponse( {"message":"Un authenticated"} )
         try:
