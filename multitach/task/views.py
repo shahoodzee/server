@@ -41,7 +41,7 @@ def recommended_workers(request):
 
     if request.method == "GET":
         # Check if the user has logged-In        
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         if not token:
             return JsonResponse({"message": "You are not logged-In", "IsUserLoggedIn": False})
@@ -103,7 +103,7 @@ def recommended_workers(request):
     # if request.method == "GET":
         #Check if the user has logged-In
         
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         if not token:
             return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": False})
@@ -153,7 +153,7 @@ def post_a_task(request):
     if request.method == "POST":
         #Check if the user has logged-In
         
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         
         if not token:
             return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": False})
@@ -223,7 +223,7 @@ def post_a_task(request):
 def delete_a_task(request):
     if request.method == "DELETE":
         #Check if the user has logged-In
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         if not token:
             authentication = False
             return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": authentication})
@@ -264,7 +264,7 @@ def delete_a_task(request):
 def update_a_task(request):
     if request.method == 'PATCH':
         #Check if the user has logged-In
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         if not token:
             authentication = False
             return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": authentication})
@@ -310,7 +310,7 @@ def tasks_list(request):
     if request.method == 'GET':
         
         # Check if the user has logged-In
-        token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
         if not token:
             authentication = False
             return JsonResponse( {"message": "You are not logged-In","IsUserLoggedIn": authentication})
