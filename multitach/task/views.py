@@ -42,6 +42,8 @@ def recommended_workers(request):
     if request.method == "GET":
         # Check if the user has logged-In        
         token = request.GET.get('jwt')
+        rtask_title = request.GET.get('title')
+        rtask_description = request.GET.get('description')
         
         if not token:
             return JsonResponse({"message": "You are not logged-In", "IsUserLoggedIn": False})
@@ -55,8 +57,6 @@ def recommended_workers(request):
 
         rclient_id = payload['id']
         rworker_id = None
-        rtask_title = request.data.get('title')
-        rtask_description = request.data.get('description')
 
         # Load the pre-trained model and vectorizer
         classifier = joblib.load(model_path)
@@ -94,7 +94,7 @@ def recommended_workers(request):
                                 "task description":rtask_description,
                                 "client_id": rclient_id,
                                 "worker_id": rworker_id,
-                                "top_workers for the given task type": top_workers_info})
+                                "top_workers": top_workers_info})
         else:
             return JsonResponse({"message": "No matching worker found for the given task type"})
 
