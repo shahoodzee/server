@@ -35,14 +35,20 @@ def create_task_notification(request):
     
         sender = payload['id']
         receiver = request.data.get('receiver')
+
         rdescription = request.data.get('description')
         rtitle = request.data.get('title')
         #rworker_decision = request.data.get('rworker_decision')
-        ris_read = request.data.get('is_read')
+        rtext_address = request.data.get('text_address')
+        rlong = request.data.get('long')
+        rlat = request.data.get('lat')
+        rtime = request.data.get('time')
+        # u dont need worker Decision at this point, its 'pending' by default.
+        rtask_type = request.data.get('taskType')
+
         
         rsender = Client.objects.get(id=sender)
         rreceiver = Worker.objects.get(id=receiver)
-        mail = "l192272@lhr.nu.edu.pk"
         sender_data = ClientSerializer(rsender).data
         receiver_data = WorkerSerializer(rreceiver).data
         
@@ -54,8 +60,13 @@ def create_task_notification(request):
             'task': rtitle,
             'description': rdescription,
             'title': rtitle,
+            "lat": rlat,
+            "long": rlong,
+            "time": rtime,
+            "taskType": rtask_type,
+            "text_address": rtext_address,
+            "status": "TaskPost",
             'worker_decision': "Pending",
-            'is_read': ris_read,
         }
         serializer = TaskNotificationSerializer(data=r_data)
         
