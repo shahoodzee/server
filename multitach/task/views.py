@@ -170,37 +170,17 @@ def post_a_task(request):
         """ Our data coming form the API """
         
         rclient_id =  payload['id']
-        rworker_id = None
+        rworker_id = request.data.get('receiver')
         rtask_title = request.data.get('title')
         rtask_description = request.data.get('description')
         rtask_time = request.data.get('time')
-        rtask_address_long = request.data.get('longitude')
-        rtask_address_lat = request.data.get('latitude')
+        rtask_address_long = request.data.get('long')
+        rtask_address_lat = request.data.get('lat')
+        rtask_type = request.data.get('task_type')
+        rtext_address = request.data.get('text_address')
         
-        # Load the pre-trained model and vectorizer
-        classifier = joblib.load(model_path)
-        vectorizer = joblib.load(vectorizer_path)
         
-        if classifier is None:
-            return JsonResponse({"message": "The classifier is absent"})
-        
-        if vectorizer is None:
-            return JsonResponse({"message": "The vectorizer is absent"})    
-        
-        # Use the text classification model to predict taskType
-        text_tfidf = vectorizer.transform([rtask_description])
-        rtask_type = classifier.predict(text_tfidf)[0]
-        
-        # Query workers with matching workerType and get the one with the highest score
-        workers_list = Worker.objects.filter(workerType=rtask_type).order_by('base_rating')
-        
-        if workers_list.exists():
-            selected_worker = workers_list.first()
-            rworker_id = selected_worker.id
 
-        else:
-            return JsonResponse({"message": "No matching worker found for the given task type"})
-        
         task_data = {
             'client': rclient_id,
             'worker': rworker_id,
@@ -208,6 +188,8 @@ def post_a_task(request):
             'description': rtask_description,
             'taskType': rtask_type,
             'time': rtask_time,
+            'text_address': rtext_address,
+            'status': "TaskPosted",
             'address': {
                 'lat': rtask_address_lat,
                 'long': rtask_address_long
