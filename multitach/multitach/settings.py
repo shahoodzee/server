@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'channels',
-    #'rest_framework.authtoken',
     'user',
     'task',
     'feedback',
@@ -208,7 +207,6 @@ PASSWORD_HASHERS = [
   'django.contrib.auth.hashers.MD5PasswordHasher',
   'django.contrib.auth.hashers.UnsaltedSHA1PasswordHasher',
   'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
-  'django.contrib.auth.hashers.CryptPasswordHasher',
 ]
 
 AUTH_USER_MODEL = 'user.CustomUser'

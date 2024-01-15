@@ -53,8 +53,9 @@ def Login(request):
 api_view(['GET'])
 def clientprofile(request):
     if request.method == 'GET':
-        # token = request.GET.get('jwt')
-        token = request.GET.get('token')
+        # token = request.COOKIES.get('jwt')
+        token = request.GET.get('jwt')
+
         if not token:
             return JsonResponse( {"message":"Un authenticated"} )
         try:
@@ -65,8 +66,8 @@ def clientprofile(request):
         
         client = Client.objects.filter(id = payload['id']).first()
         sclient = ClientSerializer(client)
-            
-    return JsonResponse(sclient.data) 
+        return JsonResponse({"data": sclient.data}) 
+    
 
 
 @api_view(['POST'])

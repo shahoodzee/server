@@ -36,17 +36,18 @@ class TaskViewSet(viewsets.ModelViewSet):
     
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def recommended_workers(request):
 
-    if request.method == "GET":
+    if request.method == "POST":
         # Check if the user has logged-In        
         token = request.GET.get('jwt')
-        rtask_title = request.GET.get('title')
-        rtask_description = request.GET.get('description')
+        rtask_title = request.data.get('title')
+        rtask_description = request.data.get('description')
         
         if not token:
             return JsonResponse({"message": "You are not logged-In", "IsUserLoggedIn": False})
+        
         try:
             payload = jwt.decode(token, 'secret', algorithms=['HS256'])
         # if the session time is over.
@@ -94,7 +95,10 @@ def recommended_workers(request):
                                 "task description":rtask_description,
                                 "client_id": rclient_id,
                                 "worker_id": rworker_id,
-                                "top_workers": top_workers_info})
+                                "top_workers": top_workers_info
+                                }
+                                
+                                )
         else:
             return JsonResponse({"message": "No matching worker found for the given task type"})
 
